@@ -1,0 +1,103 @@
+package com.entity;
+
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.gson.Gson;
+
+import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+
+@Entity
+public class AlbumEntity implements Serializable {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Basic(optional = false)
+	@Column(name = "id", unique = true, nullable = false)
+	private Long albumId;
+	private String name;
+	private String autor;
+	private Double price;
+	@JsonIgnoreProperties(value = "albums", allowSetters = true)
+	@ManyToOne(cascade = CascadeType.ALL)
+	private RecordCompanyEntity recordCompany;
+	@JsonIgnoreProperties(value = "album", allowSetters = true)
+	@OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<TrackEntity> tracks;
+
+	public AlbumEntity() {
+		this.tracks = new HashSet<>();
+	}
+
+	public Long getAlbumId() {
+		return albumId;
+	}
+
+	public void setAlbumId(Long albumId) {
+		this.albumId = albumId;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getAutor() {
+		return autor;
+	}
+
+	public void setAutor(String autor) {
+		this.autor = autor;
+	}
+
+	public Double getPrice() {
+		return price;
+	}
+
+	public void setPrice(Double price) {
+		this.price = price;
+	}
+
+	public RecordCompanyEntity getRecordCompany() {
+		return recordCompany;
+	}
+
+	public void setRecordCompany(RecordCompanyEntity recordCompany) {
+		this.recordCompany = recordCompany;
+	}
+
+	public Set<TrackEntity> getTracks() {
+		return tracks;
+	}
+
+	public void setTracks(Set<TrackEntity> tracks) {
+		this.tracks.clear();
+		tracks.forEach(this::addTrack);
+	}
+
+	public void addTrack(TrackEntity track) {
+		this.tracks.add(track);
+		track.setAlbum(this);
+	}
+
+	@Override
+	public String toString() {
+		return new Gson().toJson(this).toString();
+	}
+
+	private static final long serialVersionUID = -8277318435297709390L;
+
+}
